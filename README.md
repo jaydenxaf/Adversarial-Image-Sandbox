@@ -10,11 +10,11 @@ Engineering the Sandbox
   Standard neural networks are vulnerable to  $L_\infty$ norm attacks. By utilizing Projected Gradient Descent (PGD), I applied invisible, mathematically calculate noise to the images.
   The Result: The baseline model, which achieved ~84.7% accuracy, collapsed to 0.00% accuracy under a PGD attack with an epsilon of just 8/255.
 
-3. The Defense
+2. The Defense
   To remedy this, I abandoned the standard .fit() method and built a customm adversarial training loop.
   - During training, the pipeline splits every batch 50/50. Half of the images remain clean, while the other half are dynamically attacked using PGD before the optimization step.
   - Fixing Batch Normalization: Initially, I trained on 100% adversarial images, which caused the Batch Normalization statistics to severely drift toward the adversarial distribution, tanking clean accuracy. Implementing the 50/50 split stabilized the running mean/variance, allowing the model to understand both clean and hostile data distributions.
-  - 
+
 3. The Tradeoff
 Securing the model against PGD attacks required a steep tax on clean accuracy. My evaluation matric proves this trade off: the robust model sacrifices clean performance to act as a sturdy shield when the environment turns hostile.
 Evaluation Matrix
