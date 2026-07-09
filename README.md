@@ -50,8 +50,6 @@ python3 src/defense.py
 python3 src/evaluate.py
 ```
 🛠️ Tech Stack
-Python 3.11
-
-TensorFlow / Keras 3 (Custom Training Loops, tf.GradientTape)
-
-NumPy
+- Python 3.11
+- TensorFlow / Keras 3 (Custom Training Loops, tf.GradientTape)
+- NumPy
