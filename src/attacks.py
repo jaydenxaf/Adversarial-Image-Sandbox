@@ -27,9 +27,14 @@ def projected_gradient_descent(model, images, labels, epsilon, alpha=2/255, num_
     """
     Generates an adversarial perturbation using iterative PGD with clipping.
     """
-    # Start with a copy of the original clean images
+    # Start with a copy of the original clean images 
     adv_images = tf.identity(images)
     
+    # Change every pixel by a small amount
+    random_noise = tf.random.uniform(tf.shape(images), -epsilon, epsilon)
+    adv_images = adv_images + random_noise
+    adv_images = tf.clip_by_value(adv_images, 0.0, 1.0)
+
     for _ in range(num_iter):
         with tf.GradientTape() as tape:
             tape.watch(adv_images)

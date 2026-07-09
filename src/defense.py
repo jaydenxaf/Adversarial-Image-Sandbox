@@ -45,23 +45,30 @@ def train_robust_model():
         epoch_acc = tf.keras.metrics.SparseCategoricalAccuracy()
         
         for step, (x_batch, y_batch) in enumerate(train_dataset):
-            # 1. Generate adversarial versions of this specific batch on the fly
-            x_batch_adv = projected_gradient_descent(
-                robust_model, x_batch, y_batch, epsilon=epsilon, alpha=2/255, num_iter=7
+            # Split images into clean and adversarial
+            split = x_batch.shape[0] // 2
+
+            # 1. Generate adversarial images 
+            x_adv_half = projected_gradient_descent(
+                robust_model, x_batch[:split], y_batch[:split], epsilon=epsilon, alpha=2/255, num_iter=7
             )
+
+            # Mix clean and and adversarial images into batch
+            x_batch_mixed = tf.concat([x_adv_half, x_batch[split:]], axis=0)
+            y_batch_mixed = tf.concat([y_batch[:split], y_batch[split:]], axis=0)
             
-            # 2. Open a GradientTape to monitor the weights update
+            # Open a GradientTape to monitor the weights update
             with tf.GradientTape() as tape:
-                predictions = robust_model(x_batch_adv, training=True)
-                loss_value = robust_model.compute_loss(x_batch_adv, y_batch, predictions)
+                predictions = robust_model(x_batch_mixed, training=True)
+                loss_value = robust_model.compute_loss(x_batch_mixed, y_batch_mixed, predictions)
                 
-            # 3. Calculate gradients of weights and apply optimizer step
+            # Calculate gradients of weights and apply optimizer step
             grads = tape.gradient(loss_value, robust_model.trainable_variables)
             robust_model.optimizer.apply_gradients(zip(grads, robust_model.trainable_variables))
             
             # Update metrics
             epoch_loss.update_state(loss_value)
-            epoch_acc.update_state(y_batch, predictions)
+            epoch_acc.update_state(y_batch_mixed, predictions)
             
             if step % 50 == 0:
                 print(f"  Step {step}: Loss = {epoch_loss.result():.4f}, Accuracy = {epoch_acc.result()*100:.2f}%")
