@@ -40,14 +40,15 @@ To reproduce these results, run the pipeline scripts in the following order:
 **1. Train the undefended baseline model on CIFAR-10**
 ```bash
 python3 src/train.py
+```
 2. Train the robust model using the custom 50/50 adversarial loop
-
-Bash
+```bash
 python3 src/defense.py
+```
 3. Mount FGSM and PGD attacks against both models and generate metrics
-
-Bash
+```bash
 python3 src/evaluate.py
+```
 🛠️ Tech Stack
 Python 3.11
 
