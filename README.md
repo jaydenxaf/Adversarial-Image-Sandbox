@@ -17,18 +17,27 @@ Engineering the Sandbox
 
 3. The Tradeoff
 Securing the model against PGD attacks required a steep tax on clean accuracy. My evaluation matric proves this trade off: the robust model sacrifices clean performance to act as a sturdy shield when the environment turns hostile.
+
 Evaluation Matrix
-(Note: Update these numbers with final run)
+| Model Type | Attack Type | Epsilon=0 | Epsilon=2/255 | Epsilon=8/255 | Epsilon=16/255 |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| Baseline VGG | FGSM | 84.70% | 30.60% | 5.30% | 5.30% |
+| Baseline VGG | PGD | 84.70% | 16.10% | 0.00% | 0.00% |
+| Robust VGG | FGSM | 70.40% | 60.70% | 35.60% | 14.20% |
+| Robust VGG | PGD | 70.40% | 60.50% | 30.50% | 10.20% |
 
 Pipeline Usage
 To reproduce the results, run the pipeline scripts in the following order:
 1. Train the undefended baseline model on CIFAR-10
+
 python3 src/train.py
 
 3. Train the robust model using the custom 50/50 adversarial loop
+
 python3 src/defense.py
 
 5. Mount FGSM and PGD attacks against both models and generate metrics
+
 python3 src/evaluate.py
 
 Tech Stack
