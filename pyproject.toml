@@ -1,0 +1,13 @@
+[tool.pytest.ini_options]
+# Lets tests do `from src.attacks import ...` from the repo root
+pythonpath = ["."]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+extend-exclude = ["notebooks"]
+
+[tool.ruff.lint]
+# E/F: pycodestyle + pyflakes (errors, unused imports/variables); I: import sorting
+select = ["E", "F", "I"]
