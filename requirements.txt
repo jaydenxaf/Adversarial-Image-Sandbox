@@ -1,0 +1,8 @@
+# Runtime dependencies for the Adversarial Image Sandbox.
+# Keras 3 ships with TensorFlow >= 2.16.
+# Tip: once everything works in your venv, run `pip freeze` and pin the exact
+# versions of these packages here for fully reproducible results.
+tensorflow>=2.16
+numpy>=1.26
+matplotlib>=3.8
+pillow>=10.0   # needed by keras image loading (load_img)
