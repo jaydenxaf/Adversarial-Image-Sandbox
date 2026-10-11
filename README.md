@@ -18,7 +18,7 @@ An adversarial machine learning pipeline built from scratch in TensorFlow/Keras.
 ## Key Results
 
 - **The undefended model is completely broken.** The baseline reaches **84.7%** clean accuracy but drops to **0.00%** under PGD at ε = 8/255, a perturbation invisible to a human.
-- **Adversarial training works, at a cost.** The robust model holds **30.5%** accuracy under the same PGD attack, but clean accuracy falls from 84.7% to **70.4%** (about 14 points).
+- **Adversarial training works, at a cost.** The robust model holds **30.1%** accuracy under the same PGD attack, but clean accuracy falls from 84.7% to **70.4%** (about 14 points).
 - **There is no free lunch.** Robustness is bought with clean accuracy, and the evaluation matrix below quantifies the trade.
 
 ## Evaluation Matrix
@@ -28,11 +28,11 @@ Test accuracy by attack strength (ε is the L∞ perturbation budget on pixel va
 | Model | Attack | ε = 0 | ε = 2/255 | ε = 8/255 | ε = 16/255 |
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | Baseline VGG | FGSM | 84.70% | 30.60% | 5.30% | 5.30% |
-| Baseline VGG | PGD | 84.70% | 16.10% | **0.00%** | 0.00% |
+| Baseline VGG | PGD | 84.70% | 16.40% | **0.00%** | 0.00% |
 | Robust VGG | FGSM | 70.40% | 60.70% | 35.60% | 14.20% |
-| Robust VGG | PGD | 70.40% | 60.50% | **30.50%** | 10.20% |
+| Robust VGG | PGD | 70.40% | 60.50% | **30.10%** | 10.20% |
 
-**Evaluation setup:** [TODO: number of test images used (the one-decimal values suggest ~1,000), random seed(s), and whether results are a single run or an average].
+**Evaluation setup:** first 1,000 CIFAR-10 test images, single run, no fixed seed.
 
 ## Background
 
@@ -51,9 +51,9 @@ $$x_{adv} = \text{clip}\big(x + \varepsilon \cdot \text{sign}(\nabla_x L(\theta,
 | Parameter | FGSM | PGD |
 | :--- | :--- | :--- |
 | Norm | L∞ | L∞ |
-| Steps | 1 | [TODO] |
-| Step size (α) | n/a | [TODO] |
-| Random start | n/a | [TODO: yes/no] |
+| Steps | 1 | 10 steps at evaluation and 7 during training |
+| Step size (α) | n/a | 2/255 |
+| Random start | n/a | Yes [−ε, ε], L∞. |
 
 ### Defense: custom adversarial training loop (`src/defense.py`)
 
@@ -61,7 +61,7 @@ Instead of `model.fit()`, the defense uses a custom loop built on `tf.GradientTa
 
 1. Split the batch 50/50.
 2. Leave one half clean.
-3. Attack the other half with PGD (ε = [TODO: training ε]) against the current model.
+3. Attack the other half with PGD (ε = 8/255, 10 epochs, Adam, batch size 128) against the current model.
 4. Recombine the halves and take one optimization step on the mixed batch.
 
 **Why 50/50 and not 100% adversarial?** My first version trained only on adversarial images. That shifted the Batch Normalization running mean/variance toward the adversarial distribution and hurt clean accuracy. Mixing clean and adversarial images in every batch keeps the BN statistics representative of both distributions.
@@ -69,7 +69,7 @@ Instead of `model.fit()`, the defense uses a custom loop built on `tf.GradientTa
 | Training data per batch | Clean accuracy | PGD accuracy (ε = 8/255) |
 | :--- | :--- | :--- |
 | 100% adversarial | [TODO] | [TODO] |
-| 50% clean / 50% adversarial | 70.40% | 30.50% |
+| 50% clean / 50% adversarial | 70.40% | 30.10% |
 
 <!-- TODO: fill in the 100% adversarial row from a real rerun before keeping the BN claim. -->
 
